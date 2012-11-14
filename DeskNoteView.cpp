@@ -11,20 +11,25 @@
 #include <SupportKit.h>
 #include <OS.h>
 
-const char DeskNoteView::defaultText[] = "DeskNotes Version 1.1.0\n\nWritten By Colin Stewart\n\nCopyright 2000";
-const char DeskNoteView::aboutText[] = "DeskNotes Version 1.1.0\n\nCopyright Colin Stewart 2000\n";
+const char DeskNoteView::defaultText[]
+				= "DeskNotes Version 1.1.0\n\n"
+				"Written By Colin Stewart\n\nCopyright 2000";
+const char DeskNoteView::aboutText[]
+				= "DeskNotes Version 1.1.0\n\nCopyright Colin Stewart 2000\n";
 
-DeskNoteView::DeskNoteView(BRect rect):BView (rect, "DeskNotes", B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS) {
-	
+DeskNoteView::DeskNoteView(BRect rect)
+		:
+		BView (rect, "DeskNotes", B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS)
+{
 	BRect draggerRect = rect;
 	BRect textViewRect = rect;
 	BPopUpMenu *daggerPop;
 	BMenuItem *popupMenu;
 	BMessage *popupMessage;
 	ourSize = rect;
-	
+
 	WeAreAReplicant = false;
-	
+
 	draggerRect.OffsetTo(B_ORIGIN);
 	draggerRect.top = draggerRect.bottom - 7;
 	draggerRect.right = draggerRect.left + 7;
@@ -35,15 +40,16 @@ DeskNoteView::DeskNoteView(BRect rect):BView (rect, "DeskNotes", B_FOLLOW_ALL_SI
 	popupMessage = new BMessage (DN_LAUNCH);
 	popupMenu = new BMenuItem ("Launch DeskNotes", popupMessage);
 	daggerPop -> AddItem (popupMenu, 1);	// Add the launch menu item.
-	
+
 	popupMessage = new BMessage (DN_FNT_CLR);
 	popupMenu = new BMenuItem ("Properties", popupMessage);
 	daggerPop -> AddItem (popupMenu, 1);	// Add the change font/colour menu item.
 
 
 	textViewRect.bottom -= 8;				// Don't collide with the widgets.
-	
-	textView = new DeskNoteTextView (textViewRect, "TextView", textViewRect, B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED);
+
+	textView = new DeskNoteTextView (textViewRect, "TextView",
+					textViewRect, B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED);
 	textView -> SetText (defaultText, strlen (defaultText));
 	AddChild (textView);
 	SetViewColor (B_TRANSPARENT_COLOR);
@@ -54,57 +60,67 @@ DeskNoteView::DeskNoteView(BRect rect):BView (rect, "DeskNotes", B_FOLLOW_ALL_SI
 	propertiesWindow = NULL;
 }
 
-DeskNoteView::DeskNoteView (BMessage *data) : BView (data) {
+
+DeskNoteView::DeskNoteView (BMessage *data) : BView (data)
+{
 	const rgb_color *bckgrnd, *fregrnd;
 	ssize_t size;
-	
+
 	propertiesWindow = NULL;
 	WeAreAReplicant = true;
 	textView = (DeskNoteTextView *)FindView ("TextView");
 	data -> FindData ("background_colour", B_RGB_COLOR_TYPE, (const void **)&bckgrnd, &size);
 	data -> FindData ("foreground_colour", B_RGB_COLOR_TYPE, (const void **)&fregrnd, &size);
-	
+
 	background = *bckgrnd;
 	foreground = *fregrnd;
-	
+
 	CascadeFontAndColour();
 	SetResizingMode (B_FOLLOW_NONE);
 }
 
-DeskNoteView::~DeskNoteView () {
+
+DeskNoteView::~DeskNoteView ()
+{
 
 }
 
-status_t DeskNoteView::Archive (BMessage *data, bool deep) const{
+
+status_t DeskNoteView::Archive (BMessage *data, bool deep) const
+{
 	BView::Archive (data, deep);
 	// These first two fields are internal Archiving fields.
 	data -> AddString ("class", "DeskNoteView");
 	data -> AddString ("add_on", app_signature);
-	
+
 	// Now add the foreground and background colours.
 	data -> AddData ("background_colour", B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
 	data -> AddData ("foreground_colour", B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
-	
+
 	return B_NO_ERROR;
 }
 
-void DeskNoteView::Draw (BRect rect) {
+
+void DeskNoteView::Draw (BRect rect)
+{
 	ourSize = Bounds();
 	BRect rct = ourSize;
 	BRect cleanRct = ourSize;
-	
+
 	rct.top = rct.bottom - 7;
 	rct.left = rct.right - 7;
-	
+
 	cleanRct.top = rct.top;
 	cleanRct.right = rct.left - 1;	// Don't overlap with the resize widget.
 	SetHighColor (widgetcolour);
 	FillRect (rct);
 	SetHighColor (background);
-	FillRect (cleanRct);	
+	FillRect (cleanRct);
 }
 
-void DeskNoteView::MessageReceived (BMessage *msg) {
+
+void DeskNoteView::MessageReceived (BMessage *msg)
+{
 	BAlert *alert;
 	BRect windSize, ourSize;
 	BMessenger *messenger;
@@ -114,7 +130,7 @@ void DeskNoteView::MessageReceived (BMessage *msg) {
 	uint16 currentFace;
 	const rgb_color *bckgrnd, *fregrnd;
 	ssize_t size;
-	
+
 	switch (msg -> what) {
 		case B_ABOUT_REQUESTED:
 			// Set the mouse cursor!
@@ -132,13 +148,13 @@ void DeskNoteView::MessageReceived (BMessage *msg) {
 			foreground = *fregrnd;
 			CascadeFontAndColour();
 			break;
-		case DN_FNT_CLR:			
+		case DN_FNT_CLR:
 			if (propertiesWindow == NULL) {
 				// Set the mouse cursor!
 				be_app -> SetCursor (B_HAND_CURSOR);
 				ourSize = this -> Frame();
 				ourSize.OffsetBy (Window () -> Frame().LeftTop());
-				FontColourWindow::CalculateWindowFrame (&windSize,ourSize);
+				FontColourWindow::CalculateWindowFrame (&windSize, ourSize);
 				this->GetFont (&currentFont);
 				currentFont.GetFamilyAndStyle (&currentFamily, &currentStyle);
 				currentFace = currentFont.Face ();
@@ -158,43 +174,46 @@ void DeskNoteView::MessageReceived (BMessage *msg) {
 				propertiesWindow -> Show();
 			}
 			break;
-			
+
 		case DN_PROPERTIES_CLOSE:
 			delete orginalSettings;
 			orginalSettings = NULL;
 			propertiesWindow = NULL;
 			break;
-			
+
 		default:
 			BView::MessageReceived (msg);
 	}
 }
 
-void DeskNoteView::FrameResized (float width, float height) {
-	
+
+void DeskNoteView::FrameResized (float width, float height)
+{
 	BRect txtSize = ourSize = Bounds();
-	
+
 	txtSize.bottom -= 9;
 	textView -> SetTextRect (txtSize);
 	Invalidate();
 }
 
-void DeskNoteView::MouseDown(BPoint point) {
+
+void DeskNoteView::MouseDown(BPoint point)#
+{
 	thread_id resizeThread;
 	BMessage *msg;
 	BMenuItem *menuItem;
 	BPoint mousePoint;
 	uint32 mouseButtons;
-	
+
 	if (!Window () -> IsActive ()) Window () -> Activate (true);
-	
+
 	GetMouse (&mousePoint, &mouseButtons, false);
 	if (point.x >= (ourSize.right - 7) && point.y >= (ourSize.bottom - 7)) {
 		resizeThread = spawn_thread (DeskNoteView::ResizeViewMethod, "Resize Thread", 
 										B_DISPLAY_PRIORITY, this);
 		if (resizeThread > 0) resume_thread (resizeThread);
-	}
-	else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON) {
+
+	} else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON) {
 		popupMenu = new BPopUpMenu ("Popup Menu!");
 		popupMenu -> SetTargetForItems ((BHandler *)this);
 		msg = new BMessage (B_ABOUT_REQUESTED);
@@ -203,7 +222,7 @@ void DeskNoteView::MouseDown(BPoint point) {
 		msg = new BMessage (DN_FNT_CLR);
 		menuItem = new BMenuItem ("Properties", msg);
 		popupMenu -> AddItem (menuItem);
-		
+
 		// If we are replicant add the launch desknotes command to the menu.
 		if (WeAreAReplicant) {
 			msg = new BMessage (DN_LAUNCH);
@@ -218,60 +237,69 @@ void DeskNoteView::MouseDown(BPoint point) {
 	}
 }
 
-void DeskNoteView::CascadeFontAndColour (void) {
+
+void DeskNoteView::CascadeFontAndColour (void)
+{
 	BFont fnt;
 	widgetcolour.red = (uint8)((double)background.red * (0.8));
 	widgetcolour.green = (uint8) ((double)background.green * (0.8));
 	widgetcolour.blue = (uint8) ((double)background.blue * (0.8));
-	
+
 	GetFont (&fnt);
 	textView -> SetFontAndColor (&fnt, B_FONT_ALL, &foreground);
 	textView -> SetViewColor (background);
 	this -> Invalidate();
 	textView -> Invalidate();
 }
-	
-void DeskNoteView::SaveNote (BMessage *msg) {
+
+
+void DeskNoteView::SaveNote (BMessage *msg)
+{
 	// Save the text of the note.
 	msg -> AddString ("NoteText", textView -> Text());
-	
+
 	// Save the foreground and background colours.
 	msg -> AddData ("background_colour", B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
 	msg -> AddData ("foreground_colour", B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
 }
 
-void DeskNoteView::RestoreNote (BMessage *msg) {
+
+void DeskNoteView::RestoreNote (BMessage *msg)
+{
 	const rgb_color *bckgrnd, *fregrnd;
 	ssize_t size;
 	const char *text;
-	
+
 	// Find the text of the note.
 	if (msg -> FindString ("NoteText", &text) == B_OK) {
 		textView -> SetText (text);
 	}
-	
+
 	// Find the background colour.
 	if (msg -> FindData ("background_colour", B_RGB_COLOR_TYPE, (const void **)&bckgrnd, &size) == B_OK) {
 		background = *bckgrnd;
 	}
-	
+
 	// Find the foreground colour.
 	if (msg -> FindData ("foreground_colour", B_RGB_COLOR_TYPE, (const void **)&fregrnd, &size) == B_OK) {
 		foreground = *fregrnd;
 	}
-	
+
 	// Update the colour of the text view and widget.
 	CascadeFontAndColour ();
-	
-};
+}
 
-BArchivable * DeskNoteView::Instantiate (BMessage *data) {
+
+BArchivable * DeskNoteView::Instantiate (BMessage *data)
+{
 	if (!validate_instantiation(data, "DeskNoteView"))
 		return NULL;
 	return new DeskNoteView(data);
 }
 
-int32 DeskNoteView::ResizeViewMethod (void *data) {
+
+int32 DeskNoteView::ResizeViewMethod (void *data)
+{
 	uint32 buttons;
 	BPoint cursor;
 	float x, y;
@@ -290,11 +318,13 @@ int32 DeskNoteView::ResizeViewMethod (void *data) {
 		snooze (20 * 1000);
 	}
 	while (buttons);
-	
+
 	return 0;
 }
 
-void DeskNoteView::DetachedFromWindow () {
+
+void DeskNoteView::DetachedFromWindow ()
+{
 	const rgb_color *bckgrnd, *fregrnd;
 	ssize_t size;
 	// If we still have our preferences window open we should close it!
@@ -310,4 +340,3 @@ void DeskNoteView::DetachedFromWindow () {
 	}
 }
 
-		

@@ -12,6 +12,7 @@
 #include "DeskNoteTextView.h"
 #include "FontColourWindow.h"
 
+
 // Launch DeskNotes.
 #define DN_LAUNCH 'dnLN'
 // Request to open the Font and Colour window.
@@ -21,14 +22,16 @@
 
 #define DN_NOTE_SAVE 'dnSV'
 
+
 class DeskNoteTextView;
 
-class DeskNoteView : public BView {
+class DeskNoteView : public BView
+{
 	public:
 		DeskNoteView (BRect rect);
 		DeskNoteView (BMessage *data);
 		~DeskNoteView ();
-		
+
 		virtual void DetachedFromWindow ();
 		virtual status_t Archive(BMessage *data, bool deep = true) const;
 		virtual void Draw (BRect rect);
@@ -38,13 +41,13 @@ class DeskNoteView : public BView {
 		virtual void CascadeFontAndColour (void);
 		virtual void SaveNote (BMessage *msg);
 		virtual void RestoreNote (BMessage *msg);
-		
+
 		static	BArchivable	*Instantiate(BMessage *data);
 		static int32 ResizeViewMethod (void *data);
-		
+
 		static const char defaultText[];
 		static const char aboutText[];
-				
+
 	private:
 		bool WeAreAReplicant;
 		DeskNoteTextView *textView;
@@ -56,3 +59,4 @@ class DeskNoteView : public BView {
 };
 
 #endif
+

@@ -6,22 +6,25 @@
 
 #include <InterfaceKit.h>
 
+
 #define DN_COLOUR_MENU 'dnCM'
 #define DN_COLOUR_CHANGE 'dnCH'
 #define DN_PROPERTIES_REVERT 'dnRT'
 #define DN_PROPERTIES_CLOSE 'dnCL'
 #define DN_PROPERTIES_URGENT_CLOSE 'dnUC'
 
-class FontColourWindow : public BWindow {
+
+class FontColourWindow : public BWindow
+{
 	public:
 		FontColourWindow (BRect rect, BMessenger *msg, BMessage *initial);
 		void MessageReceived (BMessage *msg);
 		~FontColourWindow ();
-	
+
 		bool QuitRequested ();
-		
-		static void CalculateWindowFrame (BRect *windowFrame ,BRect parentFrame);
-		
+
+		static void CalculateWindowFrame (BRect *windowFrame, BRect parentFrame);
+
 	private:
 		BMessenger *messenger;
 		BMessage *orginalSettings;
@@ -29,7 +32,7 @@ class FontColourWindow : public BWindow {
 		font_family fontFamily;
 		uint16 fontFace;
 		rgb_color background, foreground;
-		
+
 		// The interface components go here.
 		// The Font family
 		BMenuBar *fontFamilyMenu;
@@ -44,13 +47,12 @@ class FontColourWindow : public BWindow {
 		BMenuItem *foregroundColourItem;
 		BMenuItem *currentSelection;
 		BColorControl *colourControl;
-		
+
 		BStringView *title;
 		BTextView *exampleText;
-		
+
 		BButton *revertButton;
-		
-		
 };
 
 #endif
+
