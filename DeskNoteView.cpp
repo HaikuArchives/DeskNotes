@@ -197,7 +197,7 @@ void DeskNoteView::FrameResized (float width, float height)
 }
 
 
-void DeskNoteView::MouseDown(BPoint point)#
+void DeskNoteView::MouseDown(BPoint point)
 {
 	thread_id resizeThread;
 	BMessage *msg;
