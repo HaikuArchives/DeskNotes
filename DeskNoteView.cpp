@@ -207,6 +207,8 @@ void DeskNoteView::MouseDown(BPoint point)
 
 	if (!Window () -> IsActive ()) Window () -> Activate (true);
 
+	textView->MakeFocus(true);
+
 	GetMouse (&mousePoint, &mouseButtons, false);
 	if (point.x >= (ourSize.right - 7) && point.y >= (ourSize.bottom - 7)) {
 		resizeThread = spawn_thread (DeskNoteView::ResizeViewMethod, "Resize Thread", 
@@ -251,13 +253,13 @@ void DeskNoteView::_ShowContextMenu(BPoint where)
 			.SetEnabled(!(start == 0 && finish == length))
 		// custom menu
 		.AddSeparator()
-		.AddItem("About Desknotes" B_UTF8_ELLIPSIS, new BMessage (B_ABOUT_REQUESTED))
+		.AddItem("About DeskNotes" B_UTF8_ELLIPSIS, new BMessage (B_ABOUT_REQUESTED))
 		.AddItem("Properties" B_UTF8_ELLIPSIS, new BMessage (DN_FNT_CLR))
 	;
 
 	// If we are replicant add the launch desknotes command to the menu.
 	if (WeAreAReplicant) {
-		menu -> AddItem (new BMenuItem ("Launch DeskNotes" , new BMessage (DN_LAUNCH)));
+		menu -> AddItem (new BMenuItem ("Launch DeskNotes" B_UTF8_ELLIPSIS, new BMessage (DN_LAUNCH)));
 	}
 
 	menu->SetTargetForItems(textView);

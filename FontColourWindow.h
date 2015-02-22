@@ -35,7 +35,7 @@ class FontColourWindow : public BWindow
 	private:
 		void _CheckButtons();
 		void _UpdateColorControl();
-		BMessenger *messenger;
+		BMessenger messenger;
 		BMessage *orginalSettings;
 		int fontSize;
 		font_family fontFamily;

@@ -14,10 +14,9 @@ FontColourWindow::FontColourWindow(
 		BRect rect, BMessenger *msg, BMessage *initial)
 	:
 	BWindow (rect, "DeskNotes",
-			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_ASYNCHRONOUS_CONTROLS)
+			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_ASYNCHRONOUS_CONTROLS),
+	messenger(*msg)
 {
-	// B_TITLED_WINDOW_LOOK
-	messenger = new BMessenger (*msg);
 	ssize_t dataSize;
 	const void *dataPointer;
 
@@ -108,9 +107,6 @@ void FontColourWindow::_UpdateColorControl()
 
 void FontColourWindow::MessageReceived (BMessage *msg)
 {
-	void *pointer;
-	BMessage *newMsg;
-
 	if (msg->WasDropped()) {
 		rgb_color* color = NULL;
 		ssize_t size = 0;
@@ -125,13 +121,12 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 				foreground = *color;
 				colourControl -> SetValue (foreground);
 			}
-			newMsg = new BMessage (orginalSettings->what);
-			newMsg -> AddData ("background_colour",
+			BMessage message(orginalSettings->what);
+			message.AddData ("background_colour",
 					B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
-			newMsg -> AddData ("foreground_colour",
+			message.AddData ("foreground_colour",
 					B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
-			messenger -> SendMessage (newMsg);
-			delete newMsg;
+			messenger.SendMessage (&message);
 			_CheckButtons();
 			return;
 		}
@@ -145,24 +140,23 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 					colourControl -> SetValue (foreground);
 			break;
 
-		case DN_COLOUR_CHANGE:
-			newMsg = new BMessage (orginalSettings->what);
+		case DN_COLOUR_CHANGE: {
+			BMessage message(orginalSettings->what);
 			if (colourPopupMenu->FindMarked() == backgroundColourItem)
 				background = colourControl -> ValueAsColor();
 			if (colourPopupMenu->FindMarked() == foregroundColourItem)
 				foreground = colourControl -> ValueAsColor();
-			newMsg -> AddData ("background_colour",
+			message.AddData ("background_colour",
 					B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
-			newMsg -> AddData ("foreground_colour",
+			message.AddData ("foreground_colour",
 					B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
-			messenger -> SendMessage (newMsg);
-			delete newMsg;
+			messenger.SendMessage (&message);
 			_CheckButtons();
 			break;
-
+		}
 		case DN_PROPERTIES_REVERT:
 			// Restore the original settings.
-			messenger -> SendMessage (orginalSettings);
+			messenger.SendMessage (orginalSettings);
 			background = originalBackground;
 			foreground = originalForeground;
 			_UpdateColorControl();
@@ -176,7 +170,7 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 			foreground = kDefaultForegroundColor;
 			defaultSettings.ReplaceData ("background_colour", B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
 			defaultSettings.ReplaceData ("foreground_colour", B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
-			messenger -> SendMessage (&defaultSettings);
+			messenger.SendMessage (&defaultSettings);
 			_UpdateColorControl();
 			_CheckButtons();
 			break;
@@ -197,17 +191,14 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 
 FontColourWindow::~FontColourWindow ()
 {
-	delete messenger;
 	delete orginalSettings;
 }
 
 
 bool FontColourWindow::QuitRequested ()
 {
-	BMessage *newMsg;
-	newMsg = new BMessage (DN_PROPERTIES_CLOSE);
-	messenger -> SendMessage (newMsg);
-	delete newMsg;
+	BMessage message(DN_PROPERTIES_CLOSE);
+	messenger.SendMessage (&message);
 	return true;
 }
 
