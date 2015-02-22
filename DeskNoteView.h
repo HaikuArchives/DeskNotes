@@ -49,6 +49,7 @@ class DeskNoteView : public BView
 		static const char aboutText[];
 
 	private:
+		void _ShowContextMenu(BPoint where);
 		bool WeAreAReplicant;
 		DeskNoteTextView *textView;
 		BRect ourSize;
@@ -56,6 +57,7 @@ class DeskNoteView : public BView
 		BMessage *orginalSettings;
 		BPopUpMenu *popupMenu;
 		rgb_color background, foreground, widgetcolour;
+		BDragger *dragger;
 };
 
 #endif
