@@ -30,8 +30,12 @@ status_t DeskNoteTextView::Archive (BMessage *data, bool deep) const
 void DeskNoteTextView::MouseDown (BPoint point)
 {
 	if (!Window () -> IsActive ()) Window () -> Activate (true);
+	BPoint mousePoint;
+	uint32 mouseButtons;
+	GetMouse (&mousePoint, &mouseButtons, false);
+	if (mouseButtons != B_SECONDARY_MOUSE_BUTTON)
+		BTextView::MouseDown (point);
 	Parent () -> MouseDown (point);
-	BTextView::MouseDown (point);
 }
 
 

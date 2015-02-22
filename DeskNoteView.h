@@ -49,6 +49,7 @@ class DeskNoteView : public BView
 		static const char aboutText[];
 
 	private:
+		void _ShowContextMenu(BPoint where);
 		bool WeAreAReplicant;
 		DeskNoteTextView *textView;
 		BRect ourSize;

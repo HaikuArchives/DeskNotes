@@ -7,7 +7,7 @@
 #include "DeskNoteWindow.h"
 
 DeskNoteWindow::DeskNoteWindow (BRect rect):BWindow (rect,
-	"DeskNotes", B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE)
+	"DeskNotes", B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_AUTO_UPDATE_SIZE_LIMITS)
 {
 	// B_TITLED_WINDOW_LOOK
 

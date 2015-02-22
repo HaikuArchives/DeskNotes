@@ -4,40 +4,33 @@
 // Date: $Date: 2011/03/20 21:57:39 $
 #include "FontColourWindow.h"
 // Bring the maths library in.
+
 #include <math.h>
+#include <MenuField.h>
+#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 
 FontColourWindow::FontColourWindow(
 		BRect rect, BMessenger *msg, BMessage *initial)
 	:
 	BWindow (rect, "DeskNotes",
-			B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE)
+			B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_ASYNCHRONOUS_CONTROLS)
 {
 	// B_TITLED_WINDOW_LOOK
-	BRect viewSize, otherSize;
-	font_height fntHeight;
-	int y;
 	messenger = new BMessenger (*msg);
-	BMessage *modelMsg;
-	const char *pointer;
 	ssize_t dataSize;
 	const void *dataPointer;
 
 	// Take a copy of the inital values to restore to if we cancel.
-	orginalSettings = new BMessage (*initial);
-	be_plain_font -> GetHeight (&fntHeight);
-	y = (int)ceil (fntHeight.ascent + fntHeight.descent + fntHeight.leading) + 2;
-	viewSize.Set (0, 0 , (rect.right - rect.left), (int)ceil (fntHeight.ascent) + 2);
-	initial -> FindString ("title", &pointer);
-	title = new BStringView (viewSize, "The Title", pointer);
-	title -> SetAlignment (B_ALIGN_CENTER);
-	AddChild (title);
-
+	orginalSettings = new BMessage(*initial);
 	// Now find out what font we start with, and what colour we use.
 	initial -> FindData ("background_colour", B_RGB_COLOR_TYPE, &dataPointer, &dataSize);
 	background = (*(rgb_color *)dataPointer);
+	originalBackground = background;
 
 	initial -> FindData ("foreground_colour", B_RGB_COLOR_TYPE, &dataPointer, &dataSize);
 	foreground = (*(rgb_color *)dataPointer);
+	originalForeground = foreground;
 
 	initial -> FindData ("font_family_name", B_STRING_TYPE, &dataPointer, &dataSize);
 	strncpy(fontFamily, (const char*)dataPointer, dataSize);
@@ -45,34 +38,71 @@ FontColourWindow::FontColourWindow(
 	initial -> FindData ("font_face", B_UINT16_TYPE, &dataPointer, &dataSize);
 	fontFace = (*(uint16 *)dataPointer);
 
-	viewSize.OffsetBy (3, viewSize.bottom + 2);
-	colourMenu = new BMenuBar (viewSize, "Colour Menu", 0);
 	colourPopupMenu = new BPopUpMenu ("Background Colour");
-	modelMsg = new BMessage (DN_COLOUR_MENU);
-	backgroundColourItem = new BMenuItem ("Background Colour", modelMsg);
-	modelMsg = new BMessage (DN_COLOUR_MENU);
-	foregroundColourItem = new BMenuItem ("Foreground Colour", modelMsg);
-	currentSelection = backgroundColourItem;
+	backgroundColourItem = new BMenuItem ("Background Colour", new BMessage (DN_COLOUR_MENU));
+	foregroundColourItem = new BMenuItem ("Foreground Colour",  new BMessage (DN_COLOUR_MENU));
+
 	colourPopupMenu -> AddItem (backgroundColourItem);
 	colourPopupMenu -> AddItem (foregroundColourItem);
+	backgroundColourItem -> SetMarked(true);
+
+	colourMenu = new BMenuField(rect, "", "", colourPopupMenu);
+
+	colourMenu->SetDivider(0);
 	colourPopupMenu -> SetTargetForItems (this);
-	colourMenu -> AddItem (colourPopupMenu);
-	AddChild (colourMenu);
-	otherSize = colourMenu -> Bounds();
-	viewSize.OffsetBy (0, otherSize.bottom - otherSize.top + 2);
-	modelMsg = new BMessage (DN_COLOUR_CHANGE);
-	colourControl = new BColorControl (viewSize.LeftTop (),
-			B_CELLS_32x8, 2, "Colour Selector", modelMsg);
-	AddChild (colourControl);
+	colourControl = new BColorControl (B_ORIGIN,
+			B_CELLS_32x8, 8.0, "Colour Selector", new BMessage (DN_COLOUR_CHANGE));
 	colourControl -> SetValue (background);
 
+	defaultsButton = new BButton ("Defaults", "Defaults", new BMessage (DN_PROPERTIES_DEFAULTS));
 	// Add the revert button, taking away the border added earlier.
-	viewSize.OffsetTo (-3, colourControl -> Frame().bottom + 2);
-	viewSize.left += 70;
-	viewSize.right -= 70;
-	modelMsg = new BMessage (DN_PROPERTIES_REVERT);
-	revertButton = new BButton (viewSize, "Revert", "Revert", modelMsg);
-	AddChild (revertButton);
+	revertButton = new BButton ("Revert", "Revert", new BMessage (DN_PROPERTIES_REVERT));
+
+	SetLayout(new BGroupLayout(B_VERTICAL));
+
+	AddChild(BLayoutBuilder::Group<>(B_VERTICAL)
+		.Add(colourMenu)
+		.Add(colourControl)
+		.AddGroup(B_HORIZONTAL)
+			.Add(defaultsButton)
+			.Add(revertButton)
+			.AddGlue()
+		.End()
+		.SetInsets(B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING,
+			B_USE_DEFAULT_SPACING, B_USE_DEFAULT_SPACING)
+	);
+	_CheckButtons();
+}
+
+
+bool FontColourWindow::IsDefaultsColor ()
+{
+	return background == kDefaultBackgroundColor
+		&& foreground == kDefaultForegroundColor;
+}
+
+
+bool FontColourWindow::IsRevertableColor ()
+{
+	return background != originalBackground
+		|| foreground != originalForeground;
+
+}
+
+
+void FontColourWindow::_CheckButtons()
+{
+	defaultsButton->SetEnabled(!IsDefaultsColor());
+	revertButton->SetEnabled(IsRevertableColor());
+}
+
+
+void FontColourWindow::_UpdateColorControl()
+{
+	if (colourPopupMenu->FindMarked() == backgroundColourItem)
+		colourControl -> SetValue (background);
+	if (colourPopupMenu->FindMarked() == foregroundColourItem)
+		colourControl -> SetValue (foreground);
 }
 
 
@@ -82,21 +112,17 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 	BMessage *newMsg;
 	switch (msg -> what) {
 		case DN_COLOUR_MENU:
-			msg -> FindPointer ("source", &pointer);
-			if ((BMenuItem *) pointer != currentSelection) {
-				currentSelection = (BMenuItem *) pointer;
-				if (currentSelection == backgroundColourItem)
+				if (colourPopupMenu->FindMarked() == backgroundColourItem)
 					colourControl -> SetValue (background);
-				if (currentSelection == foregroundColourItem)
+				if (colourPopupMenu->FindMarked() == foregroundColourItem)
 					colourControl -> SetValue (foreground);
-			}
 			break;
 
 		case DN_COLOUR_CHANGE:
 			newMsg = new BMessage (orginalSettings->what);
-			if (currentSelection == backgroundColourItem)
+			if (colourPopupMenu->FindMarked() == backgroundColourItem)
 				background = colourControl -> ValueAsColor();
-			if (currentSelection == foregroundColourItem)
+			if (colourPopupMenu->FindMarked() == foregroundColourItem)
 				foreground = colourControl -> ValueAsColor();
 			newMsg -> AddData ("background_colour",
 					B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
@@ -104,12 +130,30 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 					B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
 			messenger -> SendMessage (newMsg);
 			delete newMsg;
+			_CheckButtons();
 			break;
 
 		case DN_PROPERTIES_REVERT:
 			// Restore the original settings.
 			messenger -> SendMessage (orginalSettings);
+			background = originalBackground;
+			foreground = originalForeground;
+			_UpdateColorControl();
+			_CheckButtons();
 			break;
+
+		case DN_PROPERTIES_DEFAULTS: {
+			// Restore the default settings.
+			BMessage defaultSettings(*orginalSettings);
+			background = kDefaultBackgroundColor;
+			foreground = kDefaultForegroundColor;
+			defaultSettings.ReplaceData ("background_colour", B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
+			defaultSettings.ReplaceData ("foreground_colour", B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
+			messenger -> SendMessage (&defaultSettings);
+			_UpdateColorControl();
+			_CheckButtons();
+			break;
+		}
 
 		case DN_PROPERTIES_URGENT_CLOSE:
 			// We need to close quickly - no messages should be sent back.

@@ -78,7 +78,7 @@ DeskNoteApp::DeskNoteApp ():BApplication (app_signature)
 		}
 
 	} else {
-		rect.Set (100,80,240,160);				// Inital size for the window.
+		rect.Set (100,80,340,260);				// Inital size for the window.
 	}
 
 	myNote = new DeskNoteWindow (rect);

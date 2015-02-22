@@ -7,6 +7,7 @@
 #include "DeskNoteView.h"
 #include "FontColourWindow.h"
 #include <Invoker.h>
+#include <LayoutBuilder.h>
 #include <Message.h>
 #include <SupportKit.h>
 #include <OS.h>
@@ -53,9 +54,8 @@ DeskNoteView::DeskNoteView(BRect rect)
 	textView -> SetText (defaultText, strlen (defaultText));
 	AddChild (textView);
 	SetViewColor (B_TRANSPARENT_COLOR);
-	background.red = background.green = 255;
-	background.blue = 0;
-	foreground.red = foreground.green = foreground.blue = 0;
+	background = kDefaultBackgroundColor;
+	foreground = kDefaultForegroundColor;
 	CascadeFontAndColour();
 	propertiesWindow = NULL;
 }
@@ -214,29 +214,56 @@ void DeskNoteView::MouseDown(BPoint point)
 		if (resizeThread > 0) resume_thread (resizeThread);
 
 	} else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON) {
-		popupMenu = new BPopUpMenu ("Popup Menu!");
-		popupMenu -> SetTargetForItems ((BHandler *)this);
-		msg = new BMessage (B_ABOUT_REQUESTED);
-		menuItem = new BMenuItem ("About Desknotes", msg);
-		popupMenu -> AddItem (menuItem);
-		msg = new BMessage (DN_FNT_CLR);
-		menuItem = new BMenuItem ("Properties", msg);
-		popupMenu -> AddItem (menuItem);
-
-		// If we are replicant add the launch desknotes command to the menu.
-		if (WeAreAReplicant) {
-			msg = new BMessage (DN_LAUNCH);
-			menuItem = new BMenuItem ("Launch DeskNotes", msg);
-			popupMenu -> AddItem (menuItem);
-		}
-		menuItem = popupMenu -> Go (ConvertToScreen (mousePoint), false, false, false);
-		if (menuItem) {
-			Window () -> PostMessage (menuItem -> Message(), (BHandler *)this);
-		}
-		delete popupMenu;
+		_ShowContextMenu(mousePoint);
 	}
 }
 
+
+void DeskNoteView::_ShowContextMenu(BPoint where)
+{
+	bool isRedo;
+	undo_state state = textView->UndoState(&isRedo);
+	bool isUndo = state != B_UNDO_UNAVAILABLE && !isRedo;
+
+	int32 start;
+	int32 finish;
+	textView->GetSelection(&start, &finish);
+
+	bool canEdit = textView->IsEditable();
+	int32 length = textView->TextLength();
+
+	BPopUpMenu* menu = new BPopUpMenu(B_EMPTY_STRING, false, false);
+
+	BLayoutBuilder::Menu<>(menu)
+		.AddItem("Undo", B_UNDO/*, 'Z'*/)
+			.SetEnabled(canEdit && isUndo)
+		.AddItem("Redo", B_UNDO/*, 'Z', B_SHIFT_KEY*/)
+			.SetEnabled(canEdit && isRedo)
+		.AddSeparator()
+		.AddItem("Cut", B_CUT, 'X')
+			.SetEnabled(canEdit && start != finish)
+		.AddItem("Copy", B_COPY, 'C')
+			.SetEnabled(start != finish)
+		.AddItem("Paste", B_PASTE, 'V')
+			.SetEnabled(canEdit && be_clipboard->SystemCount() > 0)
+		.AddSeparator()
+		.AddItem("Select All", B_SELECT_ALL, 'A')
+			.SetEnabled(!(start == 0 && finish == length))
+		// custom menu
+		.AddSeparator()
+		.AddItem("About Desknotes" B_UTF8_ELLIPSIS, new BMessage (B_ABOUT_REQUESTED))
+		.AddItem("Properties" B_UTF8_ELLIPSIS, new BMessage (DN_FNT_CLR))
+	;
+
+	// If we are replicant add the launch desknotes command to the menu.
+	if (WeAreAReplicant) {
+		menu -> AddItem (new BMenuItem ("Launch DeskNotes" , new BMessage (DN_LAUNCH)));
+	}
+
+	menu->SetTargetForItems(textView);
+	ConvertToScreen(&where);
+	menu->Go(where, true, true, true);
+}
 
 void DeskNoteView::CascadeFontAndColour (void)
 {
