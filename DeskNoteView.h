@@ -57,6 +57,7 @@ class DeskNoteView : public BView
 		BMessage *orginalSettings;
 		BPopUpMenu *popupMenu;
 		rgb_color background, foreground, widgetcolour;
+		BDragger *dragger;
 };
 
 #endif

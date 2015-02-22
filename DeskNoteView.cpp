@@ -24,7 +24,7 @@ DeskNoteView::DeskNoteView(BRect rect)
 {
 	BRect draggerRect = rect;
 	BRect textViewRect = rect;
-	BPopUpMenu *daggerPop;
+	BPopUpMenu *draggerPop;
 	BMenuItem *popupMenu;
 	BMessage *popupMessage;
 	ourSize = rect;
@@ -35,16 +35,16 @@ DeskNoteView::DeskNoteView(BRect rect)
 	draggerRect.top = draggerRect.bottom - 7;
 	draggerRect.right = draggerRect.left + 7;
 
-	BDragger *dw = new BDragger(draggerRect, this, B_FOLLOW_LEFT | B_FOLLOW_BOTTOM);
-	AddChild(dw);
-	daggerPop = dw -> PopUp();
+	dragger = new BDragger(draggerRect, this, B_FOLLOW_LEFT | B_FOLLOW_BOTTOM);
+
+	draggerPop = dragger -> PopUp();
 	popupMessage = new BMessage (DN_LAUNCH);
 	popupMenu = new BMenuItem ("Launch DeskNotes", popupMessage);
-	daggerPop -> AddItem (popupMenu, 1);	// Add the launch menu item.
+	draggerPop -> AddItem (popupMenu, 1);	// Add the launch menu item.
 
 	popupMessage = new BMessage (DN_FNT_CLR);
 	popupMenu = new BMenuItem ("Properties", popupMessage);
-	daggerPop -> AddItem (popupMenu, 1);	// Add the change font/colour menu item.
+	draggerPop -> AddItem (popupMenu, 1);	// Add the change font/colour menu item.
 
 
 	textViewRect.bottom -= 8;				// Don't collide with the widgets.
@@ -53,9 +53,11 @@ DeskNoteView::DeskNoteView(BRect rect)
 					textViewRect, B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED);
 	textView -> SetText (defaultText, strlen (defaultText));
 	AddChild (textView);
-	SetViewColor (B_TRANSPARENT_COLOR);
+
 	background = kDefaultBackgroundColor;
 	foreground = kDefaultForegroundColor;
+	SetViewColor (background);
+	AddChild(dragger);
 	CascadeFontAndColour();
 	propertiesWindow = NULL;
 }
@@ -68,7 +70,9 @@ DeskNoteView::DeskNoteView (BMessage *data) : BView (data)
 
 	propertiesWindow = NULL;
 	WeAreAReplicant = true;
-	textView = (DeskNoteTextView *)FindView ("TextView");
+	textView = dynamic_cast<DeskNoteTextView *> (FindView ("TextView"));
+	dragger = dynamic_cast<BDragger *> (FindView ("_dragger_"));
+
 	data -> FindData ("background_colour", B_RGB_COLOR_TYPE, (const void **)&bckgrnd, &size);
 	data -> FindData ("foreground_colour", B_RGB_COLOR_TYPE, (const void **)&fregrnd, &size);
 
@@ -279,6 +283,10 @@ void DeskNoteView::CascadeFontAndColour (void)
 	textView -> SetViewColor (background);
 	this -> Invalidate();
 	textView -> Invalidate();
+	SetViewColor(background);
+	if (dragger != NULL)
+		dragger -> Invalidate();
+
 }
 
 
