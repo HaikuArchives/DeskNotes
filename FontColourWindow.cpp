@@ -110,6 +110,33 @@ void FontColourWindow::MessageReceived (BMessage *msg)
 {
 	void *pointer;
 	BMessage *newMsg;
+
+	if (msg->WasDropped()) {
+		rgb_color* color = NULL;
+		ssize_t size = 0;
+
+		if (msg->FindData("RGBColor", (type_code)'RGBC', (const void**)&color,
+				&size) == B_OK) {
+			if (colourPopupMenu->FindMarked() == backgroundColourItem) {
+				background = *color;
+				colourControl -> SetValue (background);
+			}
+			if (colourPopupMenu->FindMarked() == foregroundColourItem) {
+				foreground = *color;
+				colourControl -> SetValue (foreground);
+			}
+			newMsg = new BMessage (orginalSettings->what);
+			newMsg -> AddData ("background_colour",
+					B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
+			newMsg -> AddData ("foreground_colour",
+					B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
+			messenger -> SendMessage (newMsg);
+			delete newMsg;
+			_CheckButtons();
+			return;
+		}
+	}
+
 	switch (msg -> what) {
 		case DN_COLOUR_MENU:
 				if (colourPopupMenu->FindMarked() == backgroundColourItem)
