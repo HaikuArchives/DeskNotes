@@ -14,9 +14,9 @@
 
 const char DeskNoteView::defaultText[]
 				= "DeskNotes Version 1.1.0\n\n"
-				"Written By Colin Stewart\n\nCopyright 2000";
+				"Written by Colin Stewart\n\nCopyright 2000";
 const char DeskNoteView::aboutText[]
-				= "DeskNotes Version 1.1.0\n\nCopyright Colin Stewart 2000\n";
+				= "DeskNotes Version 1.1.0\n\nCopyright 2000 by Colin Stewart\n";
 
 DeskNoteView::DeskNoteView(BRect rect)
 		:
@@ -43,7 +43,7 @@ DeskNoteView::DeskNoteView(BRect rect)
 	draggerPop -> AddItem (popupMenu, 1);	// Add the launch menu item.
 
 	popupMessage = new BMessage (DN_FNT_CLR);
-	popupMenu = new BMenuItem ("Properties", popupMessage);
+	popupMenu = new BMenuItem ("Settings", popupMessage);
 	draggerPop -> AddItem (popupMenu, 1);	// Add the change font/colour menu item.
 
 
@@ -166,7 +166,7 @@ void DeskNoteView::MessageReceived (BMessage *msg)
 				// Set the message type to what we expect to receive.
 				orginalSettings = new BMessage (DN_CHG_FNT_CLR);
 				// Add the relevant data to the BMessage.
-				orginalSettings -> AddString ("title", "Select Colours for this note");
+				orginalSettings -> AddString ("title", "Select colors for this note");
 				orginalSettings -> AddString ("example", aboutText);
 				orginalSettings -> AddData ("background_colour", B_RGB_COLOR_TYPE, &background, sizeof (rgb_color));
 				orginalSettings -> AddData ("foreground_colour", B_RGB_COLOR_TYPE, &foreground, sizeof (rgb_color));
@@ -253,12 +253,12 @@ void DeskNoteView::_ShowContextMenu(BPoint where)
 		.AddItem("Paste", B_PASTE, 'V')
 			.SetEnabled(canEdit && be_clipboard->SystemCount() > 0)
 		.AddSeparator()
-		.AddItem("Select All", B_SELECT_ALL, 'A')
+		.AddItem("Select all", B_SELECT_ALL, 'A')
 			.SetEnabled(!(start == 0 && finish == length))
 		// custom menu
 		.AddSeparator()
 		.AddItem("About DeskNotes" B_UTF8_ELLIPSIS, new BMessage (B_ABOUT_REQUESTED))
-		.AddItem("Properties" B_UTF8_ELLIPSIS, new BMessage (DN_FNT_CLR))
+		.AddItem("Settings" B_UTF8_ELLIPSIS, new BMessage (DN_FNT_CLR))
 	;
 
 	// If we are replicant add the launch desknotes command to the menu.
