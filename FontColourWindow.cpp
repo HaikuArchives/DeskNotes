@@ -37,9 +37,9 @@ FontColourWindow::FontColourWindow(
 	initial -> FindData ("font_face", B_UINT16_TYPE, &dataPointer, &dataSize);
 	fontFace = (*(uint16 *)dataPointer);
 
-	colourPopupMenu = new BPopUpMenu ("Background Colour");
-	backgroundColourItem = new BMenuItem ("Background Colour", new BMessage (DN_COLOUR_MENU));
-	foregroundColourItem = new BMenuItem ("Foreground Colour",  new BMessage (DN_COLOUR_MENU));
+	colourPopupMenu = new BPopUpMenu ("Background color");
+	backgroundColourItem = new BMenuItem ("Background color", new BMessage (DN_COLOUR_MENU));
+	foregroundColourItem = new BMenuItem ("Text color",  new BMessage (DN_COLOUR_MENU));
 
 	colourPopupMenu -> AddItem (backgroundColourItem);
 	colourPopupMenu -> AddItem (foregroundColourItem);

@@ -108,7 +108,7 @@ bool DeskNoteApp::QuitRequested ()
 		delete msg;
 
 	} else {
-		lert = new BAlert ("DeskNotes", "Unable To Save Note!", "OK");
+		lert = new BAlert ("DeskNotes", "Unable to save note!", "OK");
 		lert -> Go();
 	}
 
