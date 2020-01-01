@@ -1,6 +1,6 @@
 ## DeskNotes
-DeskNotes is an application used to make notes on your Desktop
+DeskNotes is a tool to put simple sticky notes on the Desktop 
 
-It allows users to take a note by creating Replicants that can be dragged to the Desktop.
+It allows users to "stick" a note by creating Replicants that can be dragged to the Desktop.
 
 ![Image of Tipster](Screenshot.png)
