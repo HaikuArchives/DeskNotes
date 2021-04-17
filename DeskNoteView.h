@@ -4,9 +4,9 @@
 #ifndef _DESKNOTEVIEW_H
 #define _DESKNOTEVIEW_H
 
+#include <Application.h>
 #include <InterfaceKit.h>
 #include <String.h>
-#include <Application.h>
 
 #include "DeskNoteApp.h"
 #include "DeskNoteTextView.h"
@@ -25,40 +25,40 @@
 
 class DeskNoteTextView;
 
-class DeskNoteView : public BView
-{
-	public:
-		DeskNoteView (BRect rect);
-		DeskNoteView (BMessage *data);
-		~DeskNoteView ();
+class DeskNoteView : public BView {
+public:
+	DeskNoteView(BRect rect);
+	DeskNoteView(BMessage* data);
+	~DeskNoteView();
 
-		virtual void DetachedFromWindow ();
-		virtual status_t Archive(BMessage *data, bool deep = true) const;
-		virtual void Draw (BRect rect);
-		virtual void MessageReceived (BMessage *msg);
-		virtual void FrameResized (float width, float height);
-		virtual void MouseDown(BPoint point);
-		virtual void CascadeFontAndColour (void);
-		virtual void SaveNote (BMessage *msg);
-		virtual void RestoreNote (BMessage *msg);
+	virtual void 		DetachedFromWindow();
+	virtual status_t 	Archive(BMessage* data, bool deep = true) const;
+	virtual void 		Draw(BRect rect);
+	virtual void 		MessageReceived(BMessage* msg);
+	virtual void 		FrameResized(float width, float height);
+	virtual void 		MouseDown(BPoint point);
+	virtual void 		CascadeFontAndColour(void);
+	virtual void 		SaveNote(BMessage* msg);
+	virtual void 		RestoreNote(BMessage* msg);
 
-		static	BArchivable	*Instantiate(BMessage *data);
-		static int32 ResizeViewMethod (void *data);
+	static BArchivable* Instantiate(BMessage* data);
+	static int32 		ResizeViewMethod(void* data);
 
-		static const char defaultText[];
-		static const char aboutText[];
+	static const char 	defaultText[];
+	static const char 	aboutText[];
 
-	private:
-		void _ShowContextMenu(BPoint where);
-		bool WeAreAReplicant;
-		DeskNoteTextView *textView;
-		BRect ourSize;
-		FontColourWindow *propertiesWindow;
-		BMessage *orginalSettings;
-		BPopUpMenu *popupMenu;
-		rgb_color background, foreground, widgetcolour;
-		BDragger *dragger;
+private:
+	void 				_ShowContextMenu(BPoint where);
+	bool 				WeAreAReplicant;
+	DeskNoteTextView*	textView;
+	BRect 				ourSize;
+	FontColourWindow* 	propertiesWindow;
+	BMessage* 			orginalSettings;
+	BPopUpMenu* 		popupMenu;
+	rgb_color 			background;
+	rgb_color 			foreground;
+	rgb_color 			widgetcolour;
+	BDragger* 			dragger;
 };
 
-#endif
-
+#endif // _DESKNOTEVIEW_H

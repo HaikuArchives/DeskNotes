@@ -11,22 +11,21 @@
 #include "DeskNoteApp.h"
 
 
-class DeskNoteTextView : public BTextView
-{
-	public:
-		DeskNoteTextView (BRect textViewRect, const char *name,
-				BRect textRect, uint32 resizingMode, uint32 flags);
-		DeskNoteTextView (BMessage *data);
+class DeskNoteTextView : public BTextView {
+public:
+						DeskNoteTextView (BRect textViewRect, const char *name,
+							BRect textRect, uint32 resizingMode, uint32 flags);
+						DeskNoteTextView (BMessage *data);
 
-		virtual status_t Archive (BMessage *data, bool deep = true) const;
-		void MouseDown (BPoint point);
-		virtual void KeyDown(const char *bytes, int32 numBytes);
+	virtual status_t 	Archive (BMessage *data, bool deep = true) const;
+	void 				MouseDown (BPoint point);
+	virtual				void KeyDown(const char *bytes, int32 numBytes);
 
-		static BArchivable *Instantiate (BMessage *data);
+	static BArchivable*	Instantiate (BMessage *data);
 
-	private:
-		BString strId;
+private:
+	BString 			strId;
 };
 
-#endif
+#endif // _DESKNOTETEXTVIEW_H
 

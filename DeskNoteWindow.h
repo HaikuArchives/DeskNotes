@@ -7,21 +7,18 @@
 #include <Window.h>
 class DeskNoteView;
 
-class DeskNoteWindow : public BWindow
-{
-	public:
-		DeskNoteWindow (BRect rect);
+class DeskNoteWindow : public BWindow {
+public:
+					DeskNoteWindow(BRect rect);
 
-		virtual void SaveNote (BMessage *msg);
-		virtual void RestoreNote (BMessage *msg);
-		bool QuitRequested ();
+	virtual void 	SaveNote(BMessage* msg);
+	virtual void 	RestoreNote(BMessage* msg);
+	bool 			QuitRequested();
 
-	private:
-		DeskNoteView *myView;
-
+private:
+	DeskNoteView* 	myView;
 };
 
 #include "DeskNoteView.h"
 
-#endif
-
+#endif // _DESKNOTEWINDOW_H

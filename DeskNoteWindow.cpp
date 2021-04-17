@@ -6,35 +6,39 @@
 
 #include "DeskNoteWindow.h"
 
-DeskNoteWindow::DeskNoteWindow (BRect rect):BWindow (rect,
-	"DeskNotes", B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_ASYNCHRONOUS_CONTROLS)
+
+DeskNoteWindow::DeskNoteWindow(BRect rect)
+	:
+	BWindow(rect, "DeskNotes", B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
+		B_ASYNCHRONOUS_CONTROLS)
 {
 	// B_TITLED_WINDOW_LOOK
 
-	myView = new DeskNoteView (Bounds());
+	myView = new DeskNoteView(Bounds());
 
-	AddChild (myView);
-
+	AddChild(myView);
 }
 
 
-void DeskNoteWindow::SaveNote (BMessage *msg)
+void
+DeskNoteWindow::SaveNote(BMessage* msg)
 {
-	myView -> SaveNote (msg);
+	myView->SaveNote(msg);
 }
 
 
-void DeskNoteWindow::RestoreNote (BMessage *msg)
+void
+DeskNoteWindow::RestoreNote(BMessage* msg)
 {
-	myView -> RestoreNote (msg);
+	myView->RestoreNote(msg);
 }
 
 
-bool DeskNoteWindow::QuitRequested ()
+bool
+DeskNoteWindow::QuitRequested()
 {
-	BMessage msg (B_QUIT_REQUESTED);
+	BMessage msg(B_QUIT_REQUESTED);
 
-	be_app -> PostMessage (&msg);
+	be_app->PostMessage(&msg);
 	return false;
 }
-
