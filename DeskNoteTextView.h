@@ -27,7 +27,6 @@ public:
 
 	virtual status_t 	Archive (BMessage *data, bool deep = true) const;
 	void 				MouseDown (BPoint point);
-	virtual				void KeyDown(const char *bytes, int32 numBytes);
 
 	static BArchivable*	Instantiate (BMessage *data);
 

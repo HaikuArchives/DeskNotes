@@ -61,15 +61,3 @@ DeskNoteTextView::Instantiate(BMessage* data)
 		return NULL;
 	return new DeskNoteTextView(data);
 }
-
-
-void
-DeskNoteTextView::KeyDown(const char* bytes, int32 numBytes)
-{
-	BTextView::KeyDown(bytes, numBytes);
-	BString str;
-	str << "/boot/var/DeskNote." << strId;
-	BFile file(str.String(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
-	if (B_OK == file.InitCheck())
-		file.Write(Text(), strlen(Text()));
-}
