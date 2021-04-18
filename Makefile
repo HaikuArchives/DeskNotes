@@ -32,8 +32,7 @@ SRCS =  ColorMenuItem.cpp \
 	DeskNoteApp.cpp \
 	DeskNoteTextView.cpp \
 	DeskNoteView.cpp \
-	DeskNoteWindow.cpp \
-	FontColourWindow.cpp
+	DeskNoteWindow.cpp
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
@@ -106,7 +105,7 @@ SYMBOLS :=
 
 #	Includes debug information, which allows the binary to be debugged easily.
 #	If set to "TRUE", debug info will be created.
-DEBUGGER := TRUE
+DEBUGGER :=
 
 #	Specify any additional compiler flags to be used.
 COMPILER_FLAGS = 
