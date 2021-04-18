@@ -1,5 +1,13 @@
+/*
+ * Original copyright 2000 by Colin Stewart (http://www.owlfish.com/).
+ * All rights reserved.
+ * Distributed under the terms of the BSD (3-clause) License.
+ *
+ * Authors:
+ *		Janus2, 2015
+ *
+ */
 
-// The DeskNoteWindow header file.
 
 #ifndef _DESKNOTEWINDOW_H
 #define _DESKNOTEWINDOW_H

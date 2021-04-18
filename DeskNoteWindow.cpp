@@ -1,8 +1,13 @@
+/*
+ * Original copyright 2000 by Colin Stewart (http://www.owlfish.com/).
+ * All rights reserved.
+ * Distributed under the terms of the BSD (3-clause) License.
+ *
+ * Authors:
+ *		Janus2, 2015
+ *
+ */
 
-// File: $RCSFile$
-// Revision: $Revision: 1.1 $
-// Date: $Date: 2011/03/20 21:57:39 $
-// DeskNoteWindow the code.
 
 #include "DeskNoteWindow.h"
 
@@ -12,8 +17,6 @@ DeskNoteWindow::DeskNoteWindow(BRect rect)
 	BWindow(rect, "DeskNotes", B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
 		B_ASYNCHRONOUS_CONTROLS)
 {
-	// B_TITLED_WINDOW_LOOK
-
 	myView = new DeskNoteView(Bounds());
 
 	AddChild(myView);

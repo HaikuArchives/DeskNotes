@@ -1,5 +1,13 @@
+/*
+ * Original copyright 2000 by Colin Stewart (http://www.owlfish.com/).
+ * All rights reserved.
+ * Distributed under the terms of the BSD (3-clause) License.
+ *
+ * Authors:
+ *		Janus2, 2015
+ *
+ */
 
-// The DeskNoteView header file.
 
 #ifndef _DESKNOTEVIEW_H
 #define _DESKNOTEVIEW_H
