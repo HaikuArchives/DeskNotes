@@ -17,6 +17,7 @@
 #include <OS.h>
 #include <SupportKit.h>
 
+const float kWidgetSize = 7;
 const char DeskNoteView::defaultText[] = "Welcome to DeskNotes";
 const char DeskNoteView::aboutText[]
 	= "DeskNotes Version 1.1.0\n\nCopyright 2000 by Colin Stewart\n";
@@ -36,11 +37,11 @@ DeskNoteView::DeskNoteView(BRect rect)
 	WeAreAReplicant = false;
 
 	draggerRect.OffsetTo(B_ORIGIN);
-	draggerRect.top = draggerRect.bottom - 7;
-	draggerRect.right = draggerRect.left + 7;
+	draggerRect.top = draggerRect.bottom - kWidgetSize;
+	draggerRect.right = draggerRect.left + kWidgetSize;
 
 	dragger = new BDragger(draggerRect, this, B_FOLLOW_LEFT | B_FOLLOW_BOTTOM);
-	textViewRect.bottom -= 8; // Don't collide with the widgets.
+	textViewRect.bottom -= kWidgetSize + 1; // Don't collide with the widgets.
 
 	textView = new DeskNoteTextView(textViewRect, "TextView", textViewRect,
 		B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED);
@@ -102,8 +103,8 @@ DeskNoteView::Draw(BRect rct)
 	BRect rect = ourSize;
 	BRect cleanRect = ourSize;
 
-	rect.top = rect.bottom - 7;
-	rect.left = rect.right - 7;
+	rect.top = rect.bottom - kWidgetSize;
+	rect.left = rect.right - kWidgetSize;
 
 	cleanRect.top = rect.top;
 	cleanRect.right = rect.left - 1; // Don't overlap with the resize widget.
@@ -161,9 +162,11 @@ DeskNoteView::MessageReceived(BMessage* msg)
 void
 DeskNoteView::FrameResized(float width, float height)
 {
+	BRect nowRect = textView->TextRect();
 	BRect txtSize = ourSize = Bounds();
+	txtSize.InsetBy(nowRect.left, 0); // keep left/right margins of the textview
 
-	txtSize.bottom -= 9;
+	txtSize.bottom -= kWidgetSize + 2;
 	textView->SetTextRect(txtSize);
 	Invalidate();
 }
@@ -184,7 +187,8 @@ DeskNoteView::MouseDown(BPoint point)
 	textView->MakeFocus(true);
 
 	GetMouse(&mousePoint, &mouseButtons, false);
-	if (point.x >= (ourSize.right - 7) && point.y >= (ourSize.bottom - 7)) {
+	if (point.x >= (ourSize.right - kWidgetSize) && point.y
+			>= (ourSize.bottom - kWidgetSize)) {
 		resizeThread = spawn_thread(DeskNoteView::ResizeViewMethod,
 			"Resize Thread", B_DISPLAY_PRIORITY, this);
 		if (resizeThread > 0)
