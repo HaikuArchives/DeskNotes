@@ -227,6 +227,10 @@ DeskNoteView::_BuildColorMenu(BMenu* menu)
 
 		ColorMenuItem* colItem
 			= new ColorMenuItem("", palette[i], new BMessage(msgTemplate));
+
+		if (colItem != NULL && palette[i] == background)
+			colItem->SetMarked(true);
+
 		colItem->SetTarget(this);
 		menu->AddItem(colItem, buttonArea);
 
