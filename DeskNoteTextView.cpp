@@ -5,6 +5,7 @@
  *
  * Authors:
  *		Janus2, 2015
+ *		Humdinger, 2021
  *
  */
 
@@ -37,6 +38,25 @@ DeskNoteTextView::Archive(BMessage* data, bool deep) const
 	data->AddString("add_on", app_signature);
 	data->AddString("strId", strId);
 	return B_NO_ERROR;
+}
+
+
+void
+DeskNoteTextView::MessageReceived(BMessage* msg)
+{
+	if (msg->WasDropped()) {
+		rgb_color* color;
+		ssize_t size;
+		if (msg->FindData("RGBColor", B_RGB_COLOR_TYPE,
+				(const void **)&color, &size) == B_OK) {
+			BMessenger messenger(Parent());
+			BMessage message(DN_COLOR);
+			message.AddData("color", B_RGB_COLOR_TYPE, color, sizeof(rgb_color));
+			messenger.SendMessage(&message);
+			return;
+		}
+	}
+	BTextView::MessageReceived(msg);
 }
 
 

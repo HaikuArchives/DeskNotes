@@ -5,6 +5,7 @@
  *
  * Authors:
  *		Janus2, 2015
+ *		Humdinger, 2021
  *
  */
 
@@ -26,6 +27,7 @@ public:
 						DeskNoteTextView (BMessage *data);
 
 	virtual status_t 	Archive (BMessage *data, bool deep = true) const;
+	virtual void 		MessageReceived(BMessage* msg);
 	void 				MouseDown (BPoint point);
 
 	static BArchivable*	Instantiate (BMessage *data);
