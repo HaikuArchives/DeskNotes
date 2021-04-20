@@ -49,7 +49,16 @@ DeskNoteView::DeskNoteView(BRect rect)
 
 	textView = new DeskNoteTextView(textViewRect, "TextView", textViewRect,
 		B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED);
-	textView->SetText(B_TRANSLATE("Welcome to DeskNotes"));
+	BString defaultText(B_TRANSLATE(
+		"\n\tWelcome to DeskNotes!\n\n"
+		"\t*\tUse as Replicants on your Desktop\n"
+		"\t*\tResize with the bottom-right widget\n"
+		"\t*\tRight-click for a context menu\n"
+		"\t*\tUse different colors from the 'Color' menu\n"
+		"\t*\tColors dropped from other apps like\n"
+		"\t\tIcon-O-Matic change the background\n\n"
+		"\tHave a nice day!"));
+	textView->SetText(defaultText);
 	AddChild(textView);
 
 	background = palette[0];
