@@ -11,16 +11,20 @@
 
 
 #include "DeskNoteView.h"
+
+#include <AboutWindow.h>
+#include <Catalog.h>
 #include <Invoker.h>
 #include <LayoutBuilder.h>
 #include <Message.h>
 #include <OS.h>
 #include <SupportKit.h>
 
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "View"
+
 const float kWidgetSize = 7;
-const char DeskNoteView::defaultText[] = "Welcome to DeskNotes";
-const char DeskNoteView::aboutText[]
-	= "DeskNotes Version 1.1.0\n\nCopyright 2000 by Colin Stewart\n";
 
 
 DeskNoteView::DeskNoteView(BRect rect)
@@ -45,7 +49,7 @@ DeskNoteView::DeskNoteView(BRect rect)
 
 	textView = new DeskNoteTextView(textViewRect, "TextView", textViewRect,
 		B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED);
-	textView->SetText(defaultText, strlen(defaultText));
+	textView->SetText(B_TRANSLATE("Welcome to DeskNotes"));
 	AddChild(textView);
 
 	background = palette[0];
@@ -133,8 +137,28 @@ DeskNoteView::MessageReceived(BMessage* msg)
 		{
 			// Set the mouse cursor!
 			be_app->SetCursor(B_HAND_CURSOR);
-			alert = new BAlert("DeskNotes", aboutText, "OK");
-			alert->Go();
+
+			BAboutWindow* aboutWin = new BAboutWindow("DeskNotes",
+				app_signature);
+			aboutWin->AddDescription(B_TRANSLATE(
+				"Pin little notes as replicants on your Desktop.\n"
+				"Dropped colors change the background of a note."));
+			const char* extraCopyrights[] = {
+				"2012 siarzhuk ",
+				"2015 Janus",
+				"2021 Humdinger",
+				NULL
+			};
+			const char* authors[] = {
+				B_TRANSLATE("Colin Stewart (original author)"),
+				"Humdinger",
+				"Janus",
+				"siarzhuk",
+				NULL
+			};
+			aboutWin->AddCopyright(2000, "Colin Stewart", extraCopyrights);
+			aboutWin->AddAuthors(authors);
+			aboutWin->Show();
 			break;
 		}
 		case DN_LAUNCH:
@@ -289,34 +313,34 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 
 	BPopUpMenu* menu = new BPopUpMenu(B_EMPTY_STRING, false, false);
 
-	colorMenu = new BMenu("Color", 0, 0);
+	colorMenu = new BMenu(B_TRANSLATE("Color"), 0, 0);
 	_BuildColorMenu(colorMenu);
 
 	BLayoutBuilder::Menu<>(menu)
-		.AddItem("Undo", B_UNDO /*, 'Z'*/)
+		.AddItem(B_TRANSLATE("Undo"), B_UNDO /*, 'Z'*/)
 		.SetEnabled(canEdit && isUndo)
-		.AddItem("Redo", B_UNDO /*, 'Z', B_SHIFT_KEY*/)
+		.AddItem(B_TRANSLATE("Redo"), B_UNDO /*, 'Z', B_SHIFT_KEY*/)
 		.SetEnabled(canEdit && isRedo)
 		.AddSeparator()
-		.AddItem("Cut", B_CUT, 'X')
+		.AddItem(B_TRANSLATE("Cut"), B_CUT, 'X')
 		.SetEnabled(canEdit && start != finish)
-		.AddItem("Copy", B_COPY, 'C')
+		.AddItem(B_TRANSLATE("Copy"), B_COPY, 'C')
 		.SetEnabled(start != finish)
-		.AddItem("Paste", B_PASTE, 'V')
+		.AddItem(B_TRANSLATE("Paste"), B_PASTE, 'V')
 		.SetEnabled(canEdit && be_clipboard->SystemCount() > 0)
 		.AddSeparator()
-		.AddItem("Select all", B_SELECT_ALL, 'A')
+		.AddItem(B_TRANSLATE("Select all"), B_SELECT_ALL, 'A')
 		.SetEnabled(!(start == 0 && finish == length))
 		// custom menu
 		.AddSeparator()
 		.AddItem(colorMenu)
-		.AddItem(
-			"About DeskNotes" B_UTF8_ELLIPSIS, new BMessage(B_ABOUT_REQUESTED));
+		.AddItem(B_TRANSLATE("About DeskNotes" B_UTF8_ELLIPSIS),
+			new BMessage(B_ABOUT_REQUESTED));
 
 	// If we are replicant add the launch desknotes command to the menu.
 	if (WeAreAReplicant) {
 		menu->AddItem(new BMenuItem(
-			"Launch DeskNotes" B_UTF8_ELLIPSIS, new BMessage(DN_LAUNCH)));
+			B_TRANSLATE("Launch DeskNotes" B_UTF8_ELLIPSIS), new BMessage(DN_LAUNCH)));
 	}
 
 	menu->SetTargetForItems(textView);

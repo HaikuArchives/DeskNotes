@@ -11,11 +11,16 @@
 
 #include "DeskNoteWindow.h"
 
+#include <Catalog.h>
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Window"
 
 DeskNoteWindow::DeskNoteWindow(BRect rect)
 	:
-	BWindow(rect, "DeskNotes", B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
-		B_ASYNCHRONOUS_CONTROLS)
+	BWindow(rect, B_TRANSLATE_SYSTEM_NAME("DeskNotes"), B_FLOATING_WINDOW_LOOK,
+		B_NORMAL_WINDOW_FEEL, B_ASYNCHRONOUS_CONTROLS)
 {
 	myView = new DeskNoteView(Bounds());
 

@@ -5,11 +5,18 @@
  *
  * Authors:
  *		Janus2, 2015
+ *		Humdinger, 2021
  *
  */
 
 
 #include "DeskNoteApp.h"
+
+#include <Catalog.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "App"
+
 
 int main() {
 	DeskNoteApp* myApp;
@@ -114,7 +121,8 @@ bool DeskNoteApp::QuitRequested()
 		delete msg;
 
 	} else {
-		alert = new BAlert("DeskNotes", "Unable to save note!", "OK");
+		alert = new BAlert(B_TRANSLATE_SYSTEM_NAME("DeskNotes"),
+			B_TRANSLATE("Unable to save note!"), B_TRANSLATE("OK"));
 		alert->Go();
 	}
 
