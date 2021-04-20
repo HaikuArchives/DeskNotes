@@ -5,6 +5,7 @@
  *
  * Authors:
  *		Janus2, 2015
+ *		Humdinger, 2021
  *
  */
 
@@ -16,20 +17,40 @@
 #include <InterfaceKit.h>
 #include <String.h>
 
+#include "ColorMenuItem.h"
 #include "DeskNoteApp.h"
 #include "DeskNoteTextView.h"
-#include "FontColourWindow.h"
 
 
-// Launch DeskNotes.
 #define DN_LAUNCH 'dnLN'
-// Request to open the Font and Colour window.
-#define DN_FNT_CLR 'dnFC'
-// Request to change the current font and colour.
-#define DN_CHG_FNT_CLR 'dnCF'
+#define DN_COLOR 'dnCL'
 
-#define DN_NOTE_SAVE 'dnSV'
+const rgb_color palette[] = {
+	{ 255, 221, 191, 255 },		// lightest red
+	{ 255, 187, 128, 255 },		// light red
+	{ 216, 158, 108, 255 },		// red
+	{ 179, 83, 0, 255 },		// dark red
 
+	{ 255, 244, 191, 255 },		// lightest yellow
+	{ 255, 233, 128, 255 },		// light yellow
+	{ 215, 178, 0, 255 },		// yellow
+	{ 179, 148, 0, 255 },		// dark yellow
+
+	{ 216, 255, 180, 255 },		// lightest green
+	{ 177, 255, 169, 255 },		// light green
+	{ 72, 187, 61, 255 },		// green
+	{ 47, 122, 40, 255 },		// dark green
+
+	{ 213, 234, 255, 255 },		// lightest blue
+	{ 170, 213, 255, 255 },		// light blue
+	{ 67, 131, 196, 255 },		// blue
+	{ 36, 71, 106, 255 },		// dark blue
+
+	{ 255, 255, 255, 255 },		// white
+	{ 188, 188, 188, 255 },		// light grey
+	{ 96, 96, 96, 255 },		// dark grey
+	{ 0, 0, 0, 255 },			// black
+};
 
 class DeskNoteTextView;
 
@@ -39,13 +60,11 @@ public:
 	DeskNoteView(BMessage* data);
 	~DeskNoteView();
 
-	virtual void 		DetachedFromWindow();
 	virtual status_t 	Archive(BMessage* data, bool deep = true) const;
 	virtual void 		Draw(BRect rect);
 	virtual void 		MessageReceived(BMessage* msg);
 	virtual void 		FrameResized(float width, float height);
 	virtual void 		MouseDown(BPoint point);
-	virtual void 		CascadeFontAndColour(void);
 	virtual void 		SaveNote(BMessage* msg);
 	virtual void 		RestoreNote(BMessage* msg);
 
@@ -56,11 +75,13 @@ public:
 	static const char 	aboutText[];
 
 private:
+	void				_BuildColorMenu(BMenu* menu);
+	void 				_SetColors();
 	void 				_ShowContextMenu(BPoint where);
 	bool 				WeAreAReplicant;
 	DeskNoteTextView*	textView;
 	BRect 				ourSize;
-	FontColourWindow* 	propertiesWindow;
+	BMenu*				colorMenu;
 	BMessage* 			orginalSettings;
 	BPopUpMenu* 		popupMenu;
 	rgb_color 			background;
