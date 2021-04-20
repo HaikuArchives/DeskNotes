@@ -326,19 +326,19 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 	_BuildColorMenu(colorMenu);
 
 	BLayoutBuilder::Menu<>(menu)
-		.AddItem(B_TRANSLATE("Undo"), B_UNDO /*, 'Z'*/)
+		.AddItem(B_TRANSLATE("Undo"), B_UNDO)
 		.SetEnabled(canEdit && isUndo)
-		.AddItem(B_TRANSLATE("Redo"), B_UNDO /*, 'Z', B_SHIFT_KEY*/)
+		.AddItem(B_TRANSLATE("Redo"), B_UNDO)
 		.SetEnabled(canEdit && isRedo)
 		.AddSeparator()
-		.AddItem(B_TRANSLATE("Cut"), B_CUT, 'X')
+		.AddItem(B_TRANSLATE("Cut"), B_CUT)
 		.SetEnabled(canEdit && start != finish)
-		.AddItem(B_TRANSLATE("Copy"), B_COPY, 'C')
+		.AddItem(B_TRANSLATE("Copy"), B_COPY)
 		.SetEnabled(start != finish)
-		.AddItem(B_TRANSLATE("Paste"), B_PASTE, 'V')
+		.AddItem(B_TRANSLATE("Paste"), B_PASTE)
 		.SetEnabled(canEdit && be_clipboard->SystemCount() > 0)
 		.AddSeparator()
-		.AddItem(B_TRANSLATE("Select all"), B_SELECT_ALL, 'A')
+		.AddItem(B_TRANSLATE("Select all"), B_SELECT_ALL)
 		.SetEnabled(!(start == 0 && finish == length))
 		// custom menu
 		.AddSeparator()
@@ -349,7 +349,8 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 	// If we are replicant add the launch desknotes command to the menu.
 	if (WeAreAReplicant) {
 		menu->AddItem(new BMenuItem(
-			B_TRANSLATE("Launch DeskNotes" B_UTF8_ELLIPSIS), new BMessage(DN_LAUNCH)));
+			B_TRANSLATE("Launch DeskNotes" B_UTF8_ELLIPSIS),
+			new BMessage(DN_LAUNCH)));
 	}
 
 	menu->SetTargetForItems(textView);
