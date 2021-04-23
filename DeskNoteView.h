@@ -46,10 +46,10 @@ const rgb_color palette[] = {
 	{ 67, 131, 196, 255 },		// blue
 	{ 36, 71, 106, 255 },		// dark blue
 
-	{ 255, 255, 255, 255 },		// white
+	{ 244, 244, 244, 255 },		// off white
 	{ 188, 188, 188, 255 },		// light grey
 	{ 96, 96, 96, 255 },		// dark grey
-	{ 0, 0, 0, 255 },			// black
+	{ 11, 11, 11, 255 },		// off black
 };
 
 class DeskNoteTextView;

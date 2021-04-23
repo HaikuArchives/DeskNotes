@@ -283,14 +283,14 @@ DeskNoteView::_SetColors()
 	float thresh
 		= background.red + (background.green * 1.25f) + (background.blue * 0.45f);
 	if (thresh >= 360) {
-		foreground.red = 0;
-		foreground.green = 0;
-		foreground.blue = 0;
+		foreground.red = 11;
+		foreground.green = 11;
+		foreground.blue = 11;
 		widgetcolour = tint_color(background, B_DARKEN_1_TINT);
 	} else {
-		foreground.red = 255;
-		foreground.green = 255;
-		foreground.blue = 255;
+		foreground.red = 244;
+		foreground.green = 244;
+		foreground.blue = 244;
 		widgetcolour = tint_color(background, B_LIGHTEN_1_TINT);
 	}
 
