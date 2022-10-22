@@ -59,7 +59,9 @@ DeskNoteView::DeskNoteView(BRect rect)
 		"\t\tIcon-O-Matic change the background\n\n"
 		"\tHave a nice day!"));
 	textView->SetText(defaultText);
-	AddChild(textView);
+	fScrollView = new BScrollView("DeskNoteScrollView", textView, B_FOLLOW_ALL,
+		0, false, true, B_NO_BORDER);
+	AddChild(fScrollView);
 
 	background = palette[0];
 	SetViewColor(background);
