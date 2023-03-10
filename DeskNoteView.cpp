@@ -211,7 +211,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 		}
 		break;
 		
-		/*// Font style
+		// Font style
 		case FONT_STYLE: {
 
 			fontFamily = NULL;
@@ -231,7 +231,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			SetFontStyle (fontFamily, fontStyle);
 
 		}
-		break;*/
+		break;
 		
 		default:
 			BView::MessageReceived(msg);
@@ -310,7 +310,7 @@ DeskNoteView::_BuildStyleMenu(BMenu* menu)
 			// Creating a menu of that font family
 			fontMenu = new BMenu (family);
 			fontMenu->SetRadioMode (true);	// I can set only one item as "in use"
-			styleMenu->AddItem (menuItem = new BMenuItem (fontMenu, new BMessage (FONT_FAMILY)));
+			menu->AddItem (menuItem = new BMenuItem (fontMenu, new BMessage (FONT_FAMILY)));
 
 			if (!strcmp (plainFamily,family)) {
 				menuItem->SetMarked (true);
