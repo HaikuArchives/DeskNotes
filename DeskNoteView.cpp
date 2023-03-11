@@ -427,7 +427,7 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 	colorMenu = new BMenu(B_TRANSLATE("Color"), 0, 0);
 	_BuildColorMenu(colorMenu);
 	
-	styleMenu = new BMenu(B_TRANSLATE("Font Style"), 0, 0);
+	styleMenu = new BMenu(B_TRANSLATE("Font Style"));
 	_BuildStyleMenu(styleMenu);
 
 	BLayoutBuilder::Menu<>(menu)
