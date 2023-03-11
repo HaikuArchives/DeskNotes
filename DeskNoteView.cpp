@@ -196,7 +196,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 				_SetColors();
 			}
 			break;
-
+		}
 		// Font type
 		case FONT_FAMILY: {
 
@@ -238,7 +238,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 	}
 }
 
-}
+
 
 
 void
