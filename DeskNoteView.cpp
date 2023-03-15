@@ -142,7 +142,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 	uint16 currentFace;
 	const rgb_color *bckgrnd;
 	ssize_t size;
-	const char *fontFamily, *fontStyle;				
+	const char *fontFamily, *fontStyle;
 	void *ptr;
 
 	switch (msg->what) {
@@ -156,7 +156,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			aboutWin->AddDescription(B_TRANSLATE(
 				"Pin little notes as replicants on your Desktop.\n"
 				"Dropped colors change the background of a note."));
-			const char* extraCopyrights[] = 
+			const char* extraCopyrights[] = {
 				"2012 siarzhuk ",
 				"2015 Janus",
 				"2021 Humdinger",
@@ -174,13 +174,11 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			aboutWin->Show();
 			break;
 		}
-		
 		case DN_LAUNCH:
 		{
 			be_roster->Launch(app_signature);
 			break;
 		}
-		
 		case DN_COLOR:
 		{
 			ssize_t colorLength;
@@ -192,9 +190,8 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
-		
 		// Font type
-		case FONT_FAMILY: 
+		case FONT_FAMILY:
 		{
 			fontFamily = NULL;
 			fontStyle = NULL;
@@ -203,10 +200,9 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			msg->FindPointer("source", &ptr);
 			fCurrentFont = static_cast <BMenuItem*>(ptr);
 			fontFamily = fCurrentFont->Label();
-			SetFontStyle(fontFamily, fontStyle); 
+			SetFontStyle(fontFamily, fontStyle);
 		}
 		break;
-		
 		// Font style
 		case FONT_STYLE:
 	    {
@@ -227,7 +223,6 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			SetFontStyle(fontFamily, fontStyle);
 		}
 		break;
-		
 		default:
 			BView::MessageReceived(msg);
 	}
@@ -269,7 +264,7 @@ DeskNoteView::MouseDown(BPoint point)
 		if (resizeThread > 0)
 			resume_thread(resizeThread);
 
-	} 
+	}
 	else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON)
 		_ShowContextMenu(mousePoint);
 }
@@ -282,13 +277,13 @@ DeskNoteView::_BuildStyleMenu(BMenu* menu)
 	font_family plainFamily, family;
 	font_style plainStyle, style;
 	BMenuItem* menuItem = NULL;
-	int32 numFamilies, numStyles;	
+	int32 numFamilies, numStyles;
 	BMenu* fontMenu;
 	uint32 flags;
-	
+
 	if (menu == NULL)
 		return;
-	
+
 	//Font Menu
 	fCurrentFont = 0;
 
@@ -421,7 +416,7 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 
 	colorMenu = new BMenu(B_TRANSLATE("Color"), 0, 0);
 	_BuildColorMenu(colorMenu);
-	
+
 	styleMenu = new BMenu(B_TRANSLATE("Font"));
 	styleMenu->SetRadioMode(true);
 	_BuildStyleMenu(styleMenu);
@@ -494,7 +489,7 @@ void DeskNoteView::SetFontStyle(const char* fontFamily, const char* fontStyle)
 
 	if (strcmp(oldFamily, fontFamily)) {
 		oldItem = styleMenu->FindItem(oldFamily);
-		
+
 		if (oldItem != NULL)
 			// Removing the check
 			oldItem->SetMarked(false);
@@ -504,7 +499,7 @@ void DeskNoteView::SetFontStyle(const char* fontFamily, const char* fontStyle)
 	textView->SetFontAndColor(&font);
 
 	superItem = styleMenu->FindItem(fontFamily);
-	
+
 		if (superItem != NULL)
 			superItem->SetMarked(true);	// Check the one that was selected
 }
