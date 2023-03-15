@@ -10,8 +10,6 @@
  */
 
 
-#include "DeskNoteView.h"
-
 #include <AboutWindow.h>
 #include <Catalog.h>
 #include <Invoker.h>
@@ -19,6 +17,9 @@
 #include <Message.h>
 #include <OS.h>
 #include <SupportKit.h>
+
+
+#include "DeskNoteView.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -144,8 +145,7 @@ DeskNoteView::MessageReceived(BMessage* msg)
 	const char *fontFamily, *fontStyle;				
 	void *ptr;
 
-	switch(msg->what)
-	{
+	switch (msg->what) {
 		case B_ABOUT_REQUESTED:
 		{
 			// Set the mouse cursor!
@@ -156,15 +156,13 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			aboutWin->AddDescription(B_TRANSLATE(
 				"Pin little notes as replicants on your Desktop.\n"
 				"Dropped colors change the background of a note."));
-			const char* extraCopyrights[] =
-			{
+			const char* extraCopyrights[] = 
 				"2012 siarzhuk ",
 				"2015 Janus",
 				"2021 Humdinger",
 				NULL
 			};
-			const char* authors[] =
-			{
+			const char* authors[] = {
 				B_TRANSLATE("Colin Stewart (original author)"),
 				"Humdinger",
 				"Janus",
@@ -176,23 +174,25 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			aboutWin->Show();
 			break;
 		}
+		
 		case DN_LAUNCH:
 		{
 			be_roster->Launch(app_signature);
 			break;
 		}
+		
 		case DN_COLOR:
 		{
 			ssize_t colorLength;
-			if(msg->FindData("color", B_RGB_COLOR_TYPE,
+			if (msg->FindData("color", B_RGB_COLOR_TYPE,
 					(const void**)&bckgrnd, &colorLength) == B_OK
-				&& colorLength == sizeof(rgb_color))
-			{
+				&& colorLength == sizeof(rgb_color)) {
 				background = *bckgrnd;
 				_SetColors();
 			}
 			break;
 		}
+		
 		// Font type
 		case FONT_FAMILY: 
 		{
@@ -210,7 +210,6 @@ DeskNoteView::MessageReceived(BMessage* msg)
 		// Font style
 		case FONT_STYLE:
 	    {
-
 			fontFamily = NULL;
 			fontStyle = NULL;
 
@@ -220,10 +219,9 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			fontStyle = item->Label();
 			menu = item->Menu();
 
-			if(menu != NULL)
-			{
+			if (menu != NULL) {
 				fCurrentFont = menu->Superitem();
-				if(fCurrentFont != NULL)
+				if (fCurrentFont != NULL)
 					fontFamily = fCurrentFont->Label();
 			}
 			SetFontStyle(fontFamily, fontStyle);
@@ -234,7 +232,6 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			BView::MessageReceived(msg);
 	}
 }
-
 
 
 void
@@ -259,38 +256,38 @@ DeskNoteView::MouseDown(BPoint point)
 	BPoint mousePoint;
 	uint32 mouseButtons;
 
-	if(!Window()->IsActive())
+	if (!Window()->IsActive())
 		Window()->Activate(true);
 
 	textView->MakeFocus(true);
 
 	GetMouse(&mousePoint, &mouseButtons, false);
-	if(point.x >=(ourSize.right - kWidgetSize) && point.y
-			>=(ourSize.bottom - kWidgetSize)) {
+	if (point.x >= (ourSize.right - kWidgetSize) && point.y
+			>= (ourSize.bottom - kWidgetSize)) {
 		resizeThread = spawn_thread(DeskNoteView::ResizeViewMethod,
 			"Resize Thread", B_DISPLAY_PRIORITY, this);
-		if(resizeThread > 0)
+		if (resizeThread > 0)
 			resume_thread(resizeThread);
 
 	} 
-	else if(mouseButtons == B_SECONDARY_MOUSE_BUTTON)
+	else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON)
 		_ShowContextMenu(mousePoint);
 }
+
 
 void
 DeskNoteView::_BuildStyleMenu(BMenu* menu)
 {
 	//variables
-	font_family	plainFamily, family;
+	font_family plainFamily, family;
 	font_style plainStyle, style;
 	BMenuItem* menuItem = NULL;
 	int32 numFamilies, numStyles;	
 	BMenu* fontMenu;
 	uint32 flags;
 	
-	if(menu == NULL)
+	if (menu == NULL)
 		return;
-	
 	
 	//Font Menu
 	fCurrentFont = 0;
@@ -299,31 +296,24 @@ DeskNoteView::_BuildStyleMenu(BMenu* menu)
 
 	// Taking the number of font families
 	numFamilies = count_font_families();
-	for(int32 i = 0; i < numFamilies; i++)
-	{
-
+	for (int32 i = 0; i < numFamilies; i++) {
 		// Getting the font families
-		if(get_font_family(i, &family) == B_OK)
-		{
+		if (get_font_family(i, &family) == B_OK) {
 			fontMenu = new BMenu(family);
 			fontMenu->SetRadioMode(true);	// I can set only one item as "in use"
 			menuItem = new BMenuItem(fontMenu, new BMessage(FONT_FAMILY));
 			menuItem->SetTarget(this);
 			menu->AddItem(menuItem);
 
-			if(!strcmp(plainFamily,family))
-			{
+			if (!strcmp(plainFamily,family)) {
 				//menuItem->SetMarked (true);
 				fCurrentFont = menuItem;
 			}
-			 //Number of styles of that font family
+			//Number of styles of that font family
 			numStyles = count_font_styles(family);
 
-			for(int32 j = 0; j < numStyles; j++)
-			{
-
-				if(get_font_style(family,j,&style,&flags)==B_OK)
-				{
+			for (int32 j = 0; j < numStyles; j++) {
+				if (get_font_style(family,j,&style,&flags)==B_OK) {
 					menuItem = new BMenuItem(style, new BMessage(FONT_STYLE));
 					menuItem->SetTarget(this);
 					fontMenu->AddItem(menuItem);
@@ -337,10 +327,11 @@ DeskNoteView::_BuildStyleMenu(BMenu* menu)
 	}
 }
 
+
 void
 DeskNoteView::_BuildColorMenu(BMenu* menu)
 {
-	if(menu == NULL)
+	if (menu == NULL)
 		return;
 
 	BFont font;
@@ -356,8 +347,7 @@ DeskNoteView::_BuildColorMenu(BMenu* menu)
 	BRect matrixArea(0, 0, 0, 0);
 
 	// we place the color palette, reserving room at the top
-	for(uint i = 0; i < sizeof(palette) / sizeof(rgb_color); i++)
-	{
+	for (uint i = 0; i < sizeof(palette) / sizeof(rgb_color); i++) {
 		BPoint topLeft((i % nbColumns) * (itemHeight + margin),
 			(i / nbColumns) * (itemHeight + margin));
 		BRect buttonArea(topLeft.x, topLeft.y, topLeft.x + itemHeight,
@@ -367,7 +357,7 @@ DeskNoteView::_BuildColorMenu(BMenu* menu)
 		ColorMenuItem* colItem
 			= new ColorMenuItem("", palette[i], new BMessage(msgTemplate));
 
-		if(colItem != NULL && palette[i] == background)
+		if (colItem != NULL && palette[i] == background)
 			colItem->SetMarked(true);
 
 		colItem->SetTarget(this);
@@ -388,15 +378,13 @@ DeskNoteView::_SetColors()
 {
 	float thresh
 		= background.red + (background.green * 1.25f) + (background.blue * 0.45f);
-	if(thresh >= 360)
-	{
+	if (thresh >= 360) {
 		foreground.red = 11;
 		foreground.green = 11;
 		foreground.blue = 11;
 		widgetcolour = tint_color(background, B_DARKEN_1_TINT);
 	}
-	else
-	{
+	else {
 		foreground.red = 244;
 		foreground.green = 244;
 		foreground.blue = 244;
@@ -463,8 +451,7 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 			new BMessage(B_ABOUT_REQUESTED));
 
 	// If we are replicant add the launch desknotes command to the menu.
-	if(WeAreAReplicant)
-	{
+	if (WeAreAReplicant) {
 		menu->AddItem(new BMenuItem(
 			B_TRANSLATE("Launch DeskNotes" B_UTF8_ELLIPSIS),
 			new BMessage(DN_LAUNCH)));
@@ -487,8 +474,9 @@ DeskNoteView::SaveNote(BMessage* msg)
 		"background_colour", B_RGB_COLOR_TYPE, &background, sizeof(rgb_color));
 }
 
+
 // Function for the changes in the "type of font"
-void DeskNoteView :: SetFontStyle(const char* fontFamily, const char* fontStyle)
+void DeskNoteView::SetFontStyle(const char* fontFamily, const char* fontStyle)
 {
 	// Variables
 	BMenuItem *superItem;
@@ -504,11 +492,10 @@ void DeskNoteView :: SetFontStyle(const char* fontFamily, const char* fontStyle)
 	// Copying the current font family and font style
 	font.GetFamilyAndStyle(&oldFamily, &oldStyle);
 
-	if(strcmp(oldFamily, fontFamily))
-	{
+	if (strcmp(oldFamily, fontFamily)) {
 		oldItem = styleMenu->FindItem(oldFamily);
 		
-		if(oldItem != NULL)
+		if (oldItem != NULL)
 			// Removing the check
 			oldItem->SetMarked(false);
 	}
@@ -518,9 +505,10 @@ void DeskNoteView :: SetFontStyle(const char* fontFamily, const char* fontStyle)
 
 	superItem = styleMenu->FindItem(fontFamily);
 	
-		if(superItem != NULL)
+		if (superItem != NULL)
 			superItem->SetMarked(true);	// Check the one that was selected
 }
+
 
 void
 DeskNoteView::RestoreNote(BMessage* msg)
@@ -530,11 +518,11 @@ DeskNoteView::RestoreNote(BMessage* msg)
 	const char* text;
 
 	// Find the text of the note.
-	if(msg->FindString("NoteText", &text) == B_OK)
+	if (msg->FindString("NoteText", &text) == B_OK)
 		textView->SetText(text);
 
 	// Find the background colour.
-	if(msg->FindData("background_colour", B_RGB_COLOR_TYPE,
+	if (msg->FindData("background_colour", B_RGB_COLOR_TYPE,
 			(const void**) &bckgrnd, &size) == B_OK)
 		background = *bckgrnd;
 
@@ -546,7 +534,7 @@ DeskNoteView::RestoreNote(BMessage* msg)
 BArchivable*
 DeskNoteView::Instantiate(BMessage* data)
 {
-	if(!validate_instantiation(data, "DeskNoteView"))
+	if (!validate_instantiation(data, "DeskNoteView"))
 		return NULL;
 	return new DeskNoteView(data);
 }
@@ -560,26 +548,25 @@ DeskNoteView::ResizeViewMethod(void* data)
 	float x, y;
 	DeskNoteView* theView = (DeskNoteView*) data;
 
-	do
-	{
+	do {
 		theView->Window()->Lock();
 		theView->GetMouse(&cursor, &buttons);
-		if(cursor.x > 30)
+		if (cursor.x > 30)
 			x = cursor.x;
 		else
 			x = 30;
-		if(cursor.y > 20)
+		if (cursor.y > 20)
 			y = cursor.y;
 		else
 			y = 20;
-		if(theView->WeAreAReplicant)
+		if (theView->WeAreAReplicant)
 			theView->ResizeTo(x, y);
 		else
 			theView->Window()->ResizeTo(x, y);
 		theView->Window()->Unlock();
 		snooze(20 * 1000);
 	}
-	while(buttons);
+	while (buttons);
 
 	return 0;
 }
