@@ -10,8 +10,6 @@
  */
 
 
-#include "DeskNoteView.h"
-
 #include <AboutWindow.h>
 #include <Catalog.h>
 #include <Invoker.h>
@@ -21,8 +19,12 @@
 #include <SupportKit.h>
 
 
+#include "DeskNoteView.h"
+
+
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "View"
+
 
 const float kWidgetSize = 7;
 
@@ -131,15 +133,17 @@ DeskNoteView::Draw(BRect rct)
 void
 DeskNoteView::MessageReceived(BMessage* msg)
 {
-	BAlert* alert;
+	BAlert *alert;
 	BRect windSize, ourSize;
-	BMessenger* messenger;
-	BFont currentFont;
-	font_family currentFamily;
-	font_style currentStyle;
+	BMessenger *messenger;
+	BMessage *message;
+	BMenuItem *item;
+	BMenu *menu;
 	uint16 currentFace;
-	const rgb_color* bckgrnd;
+	const rgb_color *bckgrnd;
 	ssize_t size;
+	const char *fontFamily, *fontStyle;
+	void *ptr;
 
 	switch (msg->what) {
 		case B_ABOUT_REQUESTED:
@@ -186,6 +190,39 @@ DeskNoteView::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
+		// Font type
+		case FONT_FAMILY:
+		{
+			fontFamily = NULL;
+			fontStyle = NULL;
+
+			// Setting the font family
+			msg->FindPointer("source", &ptr);
+			fCurrentFont = static_cast <BMenuItem*>(ptr);
+			fontFamily = fCurrentFont->Label();
+			SetFontStyle(fontFamily, fontStyle);
+		}
+		break;
+		// Font style
+		case FONT_STYLE:
+	    {
+			fontFamily = NULL;
+			fontStyle = NULL;
+
+			// Setting the font style
+			msg->FindPointer("source", &ptr);
+			item = static_cast <BMenuItem*>(ptr);
+			fontStyle = item->Label();
+			menu = item->Menu();
+
+			if (menu != NULL) {
+				fCurrentFont = menu->Superitem();
+				if (fCurrentFont != NULL)
+					fontFamily = fCurrentFont->Label();
+			}
+			SetFontStyle(fontFamily, fontStyle);
+		}
+		break;
 		default:
 			BView::MessageReceived(msg);
 	}
@@ -227,8 +264,62 @@ DeskNoteView::MouseDown(BPoint point)
 		if (resizeThread > 0)
 			resume_thread(resizeThread);
 
-	} else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON)
+	}
+	else if (mouseButtons == B_SECONDARY_MOUSE_BUTTON)
 		_ShowContextMenu(mousePoint);
+}
+
+
+void
+DeskNoteView::_BuildStyleMenu(BMenu* menu)
+{
+	//variables
+	font_family plainFamily, family;
+	font_style plainStyle, style;
+	BMenuItem* menuItem = NULL;
+	int32 numFamilies, numStyles;
+	BMenu* fontMenu;
+	uint32 flags;
+
+	if (menu == NULL)
+		return;
+
+	//Font Menu
+	fCurrentFont = 0;
+
+	be_plain_font->GetFamilyAndStyle(&plainFamily,&plainStyle);
+
+	// Taking the number of font families
+	numFamilies = count_font_families();
+	for (int32 i = 0; i < numFamilies; i++) {
+		// Getting the font families
+		if (get_font_family(i, &family) == B_OK) {
+			fontMenu = new BMenu(family);
+			fontMenu->SetRadioMode(true);	// I can set only one item as "in use"
+			menuItem = new BMenuItem(fontMenu, new BMessage(FONT_FAMILY));
+			menuItem->SetTarget(this);
+			menu->AddItem(menuItem);
+
+			if (!strcmp(plainFamily,family)) {
+				//menuItem->SetMarked (true);
+				fCurrentFont = menuItem;
+			}
+			//Number of styles of that font family
+			numStyles = count_font_styles(family);
+
+			for (int32 j = 0; j < numStyles; j++) {
+				if (get_font_style(family,j,&style,&flags)==B_OK) {
+					menuItem = new BMenuItem(style, new BMessage(FONT_STYLE));
+					menuItem->SetTarget(this);
+					fontMenu->AddItem(menuItem);
+
+					//if (!strcmp (plainStyle, style))
+						//menuItem->SetMarked(true);
+
+				}
+			}
+		}
+	}
 }
 
 
@@ -287,7 +378,8 @@ DeskNoteView::_SetColors()
 		foreground.green = 11;
 		foreground.blue = 11;
 		widgetcolour = tint_color(background, B_DARKEN_1_TINT);
-	} else {
+	}
+	else {
 		foreground.red = 244;
 		foreground.green = 244;
 		foreground.blue = 244;
@@ -320,10 +412,14 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 	bool canEdit = textView->IsEditable();
 	int32 length = textView->TextLength();
 
-	BPopUpMenu* menu = new BPopUpMenu(B_EMPTY_STRING, false, false);
+	BPopUpMenu* menu = new BPopUpMenu(B_EMPTY_STRING, false, false,B_ITEMS_IN_COLUMN);
 
 	colorMenu = new BMenu(B_TRANSLATE("Color"), 0, 0);
 	_BuildColorMenu(colorMenu);
+
+	styleMenu = new BMenu(B_TRANSLATE("Font"));
+	styleMenu->SetRadioMode(true);
+	_BuildStyleMenu(styleMenu);
 
 	BLayoutBuilder::Menu<>(menu)
 		.AddItem(B_TRANSLATE("Undo"), B_UNDO)
@@ -340,9 +436,12 @@ DeskNoteView::_ShowContextMenu(BPoint where)
 		.AddSeparator()
 		.AddItem(B_TRANSLATE("Select all"), B_SELECT_ALL)
 		.SetEnabled(!(start == 0 && finish == length))
-		// custom menu
 		.AddSeparator()
+		// custom menu
 		.AddItem(colorMenu)
+		.AddItem(styleMenu)
+		.AddSeparator()
+		// About section
 		.AddItem(B_TRANSLATE("About DeskNotes" B_UTF8_ELLIPSIS),
 			new BMessage(B_ABOUT_REQUESTED));
 
@@ -368,6 +467,41 @@ DeskNoteView::SaveNote(BMessage* msg)
 	// Save the foreground and background colours.
 	msg->AddData(
 		"background_colour", B_RGB_COLOR_TYPE, &background, sizeof(rgb_color));
+}
+
+
+// Function for the changes in the "type of font"
+void DeskNoteView::SetFontStyle(const char* fontFamily, const char* fontStyle)
+{
+	// Variables
+	BMenuItem *superItem;
+	BMenuItem *menuItem;
+	BFont font;
+	font_family oldFamily;
+	font_style oldStyle;
+	uint32 sameProperties;
+	rgb_color sameColor;
+	BMenuItem *oldItem;
+
+	textView->GetFontAndColor(&font, &sameProperties, &sameColor);
+	// Copying the current font family and font style
+	font.GetFamilyAndStyle(&oldFamily, &oldStyle);
+
+	if (strcmp(oldFamily, fontFamily)) {
+		oldItem = styleMenu->FindItem(oldFamily);
+
+		if (oldItem != NULL)
+			// Removing the check
+			oldItem->SetMarked(false);
+	}
+
+	font.SetFamilyAndStyle(fontFamily, fontStyle);
+	textView->SetFontAndColor(&font);
+
+	superItem = styleMenu->FindItem(fontFamily);
+
+		if (superItem != NULL)
+			superItem->SetMarked(true);	// Check the one that was selected
 }
 
 
@@ -426,7 +560,8 @@ DeskNoteView::ResizeViewMethod(void* data)
 			theView->Window()->ResizeTo(x, y);
 		theView->Window()->Unlock();
 		snooze(20 * 1000);
-	} while (buttons);
+	}
+	while (buttons);
 
 	return 0;
 }

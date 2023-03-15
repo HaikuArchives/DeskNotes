@@ -22,8 +22,11 @@
 #include "DeskNoteTextView.h"
 
 
+
 #define DN_LAUNCH 'dnLN'
 #define DN_COLOR 'dnCL'
+#define FONT_FAMILY		'fntf'
+#define FONT_STYLE		'ftst'
 
 const rgb_color palette[] = {
 	{ 255, 221, 191, 255 },		// lightest red
@@ -73,21 +76,32 @@ public:
 
 	static const char 	defaultText[];
 	static const char 	aboutText[];
+	
+	void				SetFontStyle(const char* fontFamily, 
+										const char *fontStyle);
+	
+	
+	
 
 private:
 	void				_BuildColorMenu(BMenu* menu);
+	void				_BuildStyleMenu(BMenu* menu);
 	void 				_SetColors();
 	void 				_ShowContextMenu(BPoint where);
 	bool 				WeAreAReplicant;
 	DeskNoteTextView*	textView;
 	BRect 				ourSize;
 	BMenu*				colorMenu;
+	BMenu*				styleMenu;
+	BMenu*				fFontMenu;
+	BMenuItem*			fCurrentFont;
 	BMessage* 			orginalSettings;
 	BPopUpMenu* 		popupMenu;
 	rgb_color 			background;
 	rgb_color 			foreground;
 	rgb_color 			widgetcolour;
 	BDragger* 			dragger;
+	
 };
 
 #endif // _DESKNOTEVIEW_H
