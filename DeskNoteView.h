@@ -90,6 +90,7 @@ private:
 	void 				_ShowContextMenu(BPoint where);
 	bool 				WeAreAReplicant;
 	DeskNoteTextView*	textView;
+	BScrollView*		fScrollView;
 	BRect 				ourSize;
 	BMenu*				colorMenu;
 	BMenu*				styleMenu;

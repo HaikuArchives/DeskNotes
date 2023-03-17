@@ -70,7 +70,7 @@ DeskNoteTextView::MouseDown(BPoint point)
 	GetMouse(&mousePoint, &mouseButtons, false);
 	if (mouseButtons != B_SECONDARY_MOUSE_BUTTON)
 		BTextView::MouseDown(point);
-	Parent()->MouseDown(point);
+	Parent()->Parent()->MouseDown(point);
 }
 
 
